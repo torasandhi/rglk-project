@@ -13,6 +13,15 @@ class UCapsuleComponent;
 class UStaticMeshComponent;
 struct FInputActionValue;
 
+UENUM(BlueprintType)
+enum class EPlayerState: uint8
+{
+	Idle,
+	Running,
+	Attacking,
+	Dashing
+};
+
 
 UCLASS()
 class CPP_API APlayerCharacter : public APawn
@@ -28,6 +37,9 @@ public:
 	float GetSpeed() const;
 
 protected:
+	UPROPERTY(EditAnywhere, Category = "References")
+	FVector firePos;
+	
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float MoveSpeed = 600.f;
 	UPROPERTY(EditAnywhere, Category = "Movement")
@@ -36,6 +48,8 @@ protected:
 	UInputMappingContext* InputMappingContext;
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* IA_Move;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* IA_Attack;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCapsuleComponent* CapsuleComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -43,7 +57,9 @@ protected:
 
 	virtual void BeginPlay() override;
 	void InputMove(const FInputActionValue& value);
+	void Attack(const FInputActionValue& value);
 
 private:
 	FVector TargetDirection;
+	EPlayerState CurrentState = EPlayerState::Idle;
 };

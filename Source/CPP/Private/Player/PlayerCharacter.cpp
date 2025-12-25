@@ -14,7 +14,7 @@ APlayerCharacter::APlayerCharacter(): InputMappingContext(nullptr), IA_Move(null
 	TargetDirection = FVector::ZeroVector;
 
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollider"));
-    
+
 	RootComponent = CapsuleComponent;
 
 	CapsuleComponent->InitCapsuleSize(40.0f, 90.0f); // Radius, Half-Height
@@ -66,21 +66,28 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		// Triggered: Updates direction while holding key
+		// Movement
 		EnhancedInputComponent->BindAction(
 			IA_Move,
 			ETriggerEvent::Triggered,
 			this,
 			&APlayerCharacter::InputMove
-			);
+		);
 
-		// Completed: Resets direction when key is released so we stop moving
 		EnhancedInputComponent->BindAction(
 			IA_Move,
 			ETriggerEvent::Completed,
 			this,
 			&APlayerCharacter::InputMove
-			);
+		);
+
+		// Attack
+		EnhancedInputComponent->BindAction(
+			IA_Attack,
+			ETriggerEvent::Triggered,
+			this,
+			&APlayerCharacter::Attack
+		);
 	}
 }
 
@@ -106,3 +113,15 @@ void APlayerCharacter::InputMove(const FInputActionValue& value)
 	}
 }
 
+void APlayerCharacter::Attack(const FInputActionValue& value)
+{
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			2.f,
+			FColor::Yellow,
+			TEXT("Attacking")
+		);
+	}
+}
