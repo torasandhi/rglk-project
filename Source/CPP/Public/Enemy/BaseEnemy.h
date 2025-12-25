@@ -7,6 +7,10 @@
 #include "GameFramework/Pawn.h"
 #include "BaseEnemy.generated.h"
 
+class UCapsuleComponent;
+class UStaticMeshComponent;
+class UPrimitiveComponent;
+
 UENUM(BlueprintType)
 enum class EEnemyState : uint8
 {
@@ -24,7 +28,6 @@ public:
 	// Sets default values for this pawn's properties
 	ABaseEnemy();
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -32,14 +35,22 @@ protected:
 	virtual void GetTarget();
 	virtual void LookAtTarget(float DeltaTime);
 	virtual void MoveTowardsTarget(float DeltaTime);
+	virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp,
+	                       bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse,
+	                       const FHitResult& Hit) override;
 	virtual void OnDeath();
 
 private:
+	UPROPERTY(VisibleAnywhere, Category= "Components")
+	UCapsuleComponent* CapsuleComponent;
+	UPROPERTY(VisibleAnywhere, Category= "Components")
+	UStaticMeshComponent* EnemyMesh;
+
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	int32 CurrentHealth = 600.f;
 	UPROPERTY(EditAnywhere, Category = "BaseStat")
 	int32 BaseHealth = 600.f;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	float MoveSpeed = 10.f;
 	UPROPERTY(EditAnywhere, Category = "BaseStat")
@@ -55,7 +66,12 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "BaseStat")
 	float stopDistance;
+
+	UPROPERTY(VisibleAnywhere, Category = "BaseStat")
+	AActor* Target;
 	
-	AActor* target;
 	EEnemyState CurrentState = EEnemyState::Chasing;
+	FVector CurrentPushVelocity;
+	FVector SeparationDirection;
+	float PushFriction;
 };

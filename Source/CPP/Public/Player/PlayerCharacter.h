@@ -12,7 +12,7 @@ class UInputAction;
 class UCapsuleComponent;
 class UStaticMeshComponent;
 struct FInputActionValue;
-
+	
 UENUM(BlueprintType)
 enum class EPlayerState: uint8
 {
@@ -27,7 +27,7 @@ UCLASS()
 class CPP_API APlayerCharacter : public APawn
 {
 	GENERATED_BODY()
-
+	
 public:
 	APlayerCharacter();
 
@@ -39,7 +39,6 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, Category = "References")
 	FVector firePos;
-	
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float MoveSpeed = 600.f;
 	UPROPERTY(EditAnywhere, Category = "Movement")

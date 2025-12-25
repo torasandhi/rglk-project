@@ -6,8 +6,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Components/CapsuleComponent.h"
+#include "CPP/CPP.h"
 
-// Sets default values
 APlayerCharacter::APlayerCharacter(): InputMappingContext(nullptr), IA_Move(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -17,8 +17,8 @@ APlayerCharacter::APlayerCharacter(): InputMappingContext(nullptr), IA_Move(null
 
 	RootComponent = CapsuleComponent;
 
-	CapsuleComponent->InitCapsuleSize(40.0f, 90.0f); // Radius, Half-Height
-	CapsuleComponent->SetCollisionProfileName(TEXT("Pawn")); // Standard collision profile
+	CapsuleComponent->InitCapsuleSize(40.0f, 90.0f); 
+	CapsuleComponent->SetCollisionProfileName(TEXT("Pawn")); 
 
 	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMesh"));
 	PlayerMesh->SetupAttachment(RootComponent);
@@ -28,7 +28,6 @@ APlayerCharacter::APlayerCharacter(): InputMappingContext(nullptr), IA_Move(null
 float APlayerCharacter::GetSpeed() const { return MoveSpeed; }
 
 
-// Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -115,13 +114,5 @@ void APlayerCharacter::InputMove(const FInputActionValue& value)
 
 void APlayerCharacter::Attack(const FInputActionValue& value)
 {
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			2.f,
-			FColor::Yellow,
-			TEXT("Attacking")
-		);
-	}
+	PRINT_DEBUG_MESSAGE("Attacking");
 }

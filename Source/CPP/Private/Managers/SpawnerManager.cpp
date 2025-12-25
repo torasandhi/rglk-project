@@ -2,6 +2,7 @@
 #include "ObjectPoolSubsystem.h" // Import your pool system
 #include "UPoolableInterface.h"
 #include "Components/BoxComponent.h"
+#include "CPP/CPP.h"
 
 ASpawnerManager::ASpawnerManager()
 {
@@ -28,7 +29,7 @@ void ASpawnerManager::BeginPlay()
 }
 
 
-void ASpawnerManager::SpawnObstacle()
+void ASpawnerManager::SpawnObstacle() const
 {
 	// 1. Safety Check
 	if (!ObstacleClass) return;
@@ -57,19 +58,21 @@ void ASpawnerManager::SpawnObstacle()
 	}
 }
 
-void ASpawnerManager::SpawnEnemies()
+void ASpawnerManager::SpawnEnemies() const
 {
 	if (!EnemyClass) return;
 
 	FVector SpawnLocation = GetRandomSpawnPointAtEdgePos();
+	PRINT_DEBUG_MESSAGE(GetRandomSpawnPointAtEdgePos().ToString());
 	
 	if (UObjectPoolSubsystem* Pool = GetWorld()->GetSubsystem<UObjectPoolSubsystem>())
 	{
-		AActor* SpawnedEnemy = Pool->GetActorFromPool(EnemyClass, SpawnLocation, FRotator::ZeroRotator);
+		// AActor* SpawnedEnemy =
+		 Pool->GetActorFromPool(EnemyClass, SpawnLocation, FRotator::ZeroRotator);
 	}
 }
 
-FVector ASpawnerManager::GetRandomSpawnPointAtEdgePos()
+FVector ASpawnerManager::GetRandomSpawnPointAtEdgePos() const
 {
 	if (!SpawnArea) return FVector::ZeroVector;
 
@@ -98,6 +101,9 @@ FVector ASpawnerManager::GetRandomSpawnPointAtEdgePos()
 		SpawnLocation.X += FMath::RandRange(-Extent.X, Extent.X);
 		SpawnLocation.Y -= Extent.Y;
 		break;
+	default:
+		SpawnLocation.X += Extent.X;
+		SpawnLocation.Y += FMath::RandRange(-Extent.Y, Extent.Y);
 	}
 
 	return SpawnLocation;

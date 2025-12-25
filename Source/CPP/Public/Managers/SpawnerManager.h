@@ -32,7 +32,7 @@ public:
 private:
 	FTimerHandle SpawnTimerHandle;
 
-	void SpawnObstacle();
-	void SpawnEnemies();
-	FVector GetRandomSpawnPointAtEdgePos();
+	void SpawnObstacle() const;
+	void SpawnEnemies() const;
+	FVector GetRandomSpawnPointAtEdgePos() const;
 };
