@@ -25,8 +25,6 @@ void UGameplayWidget::BindToPlayer(ArglkPlayerCharacter* Player)
 {
 	if (!Player) return;
 
-	PRINT_DEBUG_MESSAGE("CALLED");
-
 	Player->OnHealthChanged.AddDynamic(
 		this, &UGameplayWidget::OnHealthChanged
 	);

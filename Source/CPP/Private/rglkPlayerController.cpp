@@ -19,7 +19,6 @@ void ArglkPlayerController::BeginPlay()
 	if (UI)
 	{
 		UI->WBP_Gameplay->SetVisibility(ESlateVisibility::Visible);
-		PRINT_DEBUG_MESSAGE("VISIBILITY SET");
 	}
 }
 
