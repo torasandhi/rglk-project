@@ -19,4 +19,7 @@ class CPP_API IPoolableInterface
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pooling")
 	void OnSpawnFromPool();
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnReturnedToPool, AActor*);
+	virtual FOnReturnedToPool& OnReturnedToPool() = 0;
 };

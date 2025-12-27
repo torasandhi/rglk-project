@@ -17,7 +17,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UBoxComponent* SpawnArea;	
+	UBoxComponent* SpawnArea;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Spawning")
@@ -36,4 +36,5 @@ private:
 	void SpawnObstacle() const;
 	void SpawnEnemies();
 	FVector GetRandomSpawnPointAtEdgePos() const;
+	void HandleActorReturnedToPool(AActor* Enemy);
 };

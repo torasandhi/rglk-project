@@ -17,7 +17,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public: 
+public:
 	virtual void Tick(float DeltaTime) override;
 
 	// --- SHARED STATS --- //
@@ -29,19 +29,21 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	float MoveSpeed = 600.0f;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UWeaponComponent* WeaponComp;
+
 	// --- SHARED ACTIONS --- //
-	// Both AI and Player need to be able to attack, 
-	// but the TRIGGER (Input vs AI Decision) is different.
-    
+
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void Attack();
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void Die();
-    
-	// We do NOT put SetupPlayerInputComponent here, 
-	// because the AI doesn't have a PlayerController!
+
+	virtual float TakeDamage(
+		float DamageAmount,
+		FDamageEvent const& DamageEvent,
+		AController* EventInstigator,
+		AActor* DamageCauser) override;
 };

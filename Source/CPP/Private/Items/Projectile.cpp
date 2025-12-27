@@ -54,3 +54,8 @@ void AProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+IPoolableInterface::FOnReturnedToPool& AProjectile::OnReturnedToPool()
+{
+	return ReturnToPool;
+}

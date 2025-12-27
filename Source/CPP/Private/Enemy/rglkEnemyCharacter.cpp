@@ -1,6 +1,5 @@
 #include "Enemy/rglkEnemyCharacter.h"
 
-#include "KismetTraceUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -18,6 +17,11 @@ ArglkEnemyCharacter::ArglkEnemyCharacter()
 
 	// 2. Configure Collision
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
+}
+
+IPoolableInterface::FOnReturnedToPool& ArglkEnemyCharacter::OnReturnedToPool()
+{
+	return ReturnToPool;
 }
 
 void ArglkEnemyCharacter::BeginPlay()
@@ -93,12 +97,15 @@ void ArglkEnemyCharacter::Die()
 	Super::Die();
 
 	if (UObjectPoolSubsystem* Pool = GetWorld()->GetSubsystem<UObjectPoolSubsystem>())
+	{
 		Pool->ReturnActorToPool(this);
+		ReturnToPool.Broadcast(this);
+	}
 }
 
 void ArglkEnemyCharacter::Attack()
 {
-	PRINT_DEBUG_MESSAGE("ENEMY IS ATTACKING");
+	Super::Attack();
 	AttackTimer.Invalidate();
 }
 
@@ -208,4 +215,18 @@ void ArglkEnemyCharacter::UpdateAttack(float DeltaTime)
 	float Distance = FVector::Dist(GetActorLocation(), TargetActor->GetActorLocation());
 	if (Distance > StopDistance)
 		SetState(EEnemyState::Chasing);
+}
+
+float ArglkEnemyCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+	class AController* EventInstigator, AActor* DamageCauser)
+{
+	const float ActualDamage =  Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	CurrentHealth -= ActualDamage;
+	if (CurrentHealth <= 0)
+	{
+		Die();
+	}
+	
+	return ActualDamage;
 }

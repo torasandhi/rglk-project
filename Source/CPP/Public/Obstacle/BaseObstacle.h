@@ -17,11 +17,12 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void OnSpawnFromPool_Implementation() override;
+	virtual FOnReturnedToPool& OnReturnedToPool() override;
 
 protected:
 	FTimerHandle ReturnToPoolTImer;
 	
-	// Called when the game starts or when spawned
+	/** Called when the game starts or when spawned*/
 	virtual void BeginPlay() override;
 	void ReturnSelfToPool();
 		
@@ -29,4 +30,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Obstacle")
 	float moveSpeed = 10.f;
 	float LifeTime = 5.f;
+
+	FOnReturnedToPool ReturnToPool;
 };

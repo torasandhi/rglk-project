@@ -2,7 +2,6 @@
 
 
 #include "Components/WeaponComponent.h"
-
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -19,7 +18,7 @@ void UWeaponComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-void UWeaponComponent::PerformAttack()
+void UWeaponComponent::PerformAttack() const
 {
 	AActor* Owner = GetOwner();
 	if (!Owner) return;
@@ -41,22 +40,26 @@ void UWeaponComponent::PerformAttack()
 		UEngineTypes::ConvertToTraceType(ECC_Pawn),
 		false,
 		ActorsToIgnore,
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		Hit,
 		true
 	);
 
 	if (bHit && Hit.GetActor())
 	{
-		// 4. Apply Damage
-		// UGameplayStatics::ApplyDamage(Hit.GetActor(), BaseDamage, ...);
-        
+		UGameplayStatics::ApplyDamage(
+			Hit.GetActor(),
+			BaseDamage,
+			Owner->GetInstigatorController(),
+			Owner,
+			UDamageType::StaticClass()
+		);
 		UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *Hit.GetActor()->GetName());
 	}
 }
 
-void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+                                     FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
-

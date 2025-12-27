@@ -2,7 +2,6 @@
 #include "ObjectPoolSubsystem.h" // Import your pool system
 #include "UPoolableInterface.h"
 #include "Components/BoxComponent.h"
-#include "CPP/CPP.h"
 
 ASpawnerManager::ASpawnerManager()
 {
@@ -66,7 +65,15 @@ void ASpawnerManager::SpawnEnemies()
 	AActor* SpawnedEnemy = Pool->GetActorFromPool(EnemyClass, SpawnLocation, FRotator::ZeroRotator);
 	if (SpawnedEnemy->GetClass()->ImplementsInterface(UPoolableInterface::StaticClass()))
 	{
+		if (!SpawnedEnemy->Implements<UPoolableInterface>()) return;
 		IPoolableInterface::Execute_OnSpawnFromPool(SpawnedEnemy);
+		IPoolableInterface* Poolable = Cast<IPoolableInterface>(SpawnedEnemy);
+
+		Poolable->OnReturnedToPool().AddUObject(
+			this,
+			&ASpawnerManager::HandleActorReturnedToPool
+		);
+		
 		SpawnedEnemies.Add(SpawnedEnemy);
 	}
 }
@@ -106,4 +113,9 @@ FVector ASpawnerManager::GetRandomSpawnPointAtEdgePos() const
 	}
 
 	return SpawnLocation;
+}
+
+void ASpawnerManager::HandleActorReturnedToPool(AActor* Enemy)
+{
+	SpawnedEnemies.Remove(Enemy);
 }

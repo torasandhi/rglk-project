@@ -4,6 +4,7 @@
 #include "rglkCharacter.h"
 
 #include "Components/WeaponComponent.h"
+#include "CPP/CPP.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 ArglkCharacter::ArglkCharacter()
@@ -11,7 +12,7 @@ ArglkCharacter::ArglkCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Configure standard movement for both AI and Player
-	GetCharacterMovement()->bOrientRotationToMovement = true; 
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 
@@ -31,10 +32,43 @@ void ArglkCharacter::Tick(float DeltaTime)
 
 void ArglkCharacter::Attack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Base Character Attacking!"));
+	WeaponComp->PerformAttack();
 }
 
 void ArglkCharacter::Die()
 {
-	// Ragdoll, destroy actor, etc.
+	PRINT_DEBUG_MESSAGE(GetName() + " has Died");
+}
+
+float ArglkCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+                                 AActor* DamageCauser)
+{
+	const float ActualDamage = Super::TakeDamage(
+		DamageAmount,
+		DamageEvent,
+		EventInstigator,
+		DamageCauser);
+
+	CurrentHealth -= ActualDamage;
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			2.f,
+			FColor::Green,
+			FString::Printf(
+				TEXT("%s | CurrentHealth: %.2f"),
+				*GetName(),
+				CurrentHealth
+			)
+		);
+	}
+
+	if (CurrentHealth <= 0)
+	{
+		Die();
+		CurrentHealth = MaxHealth;
+	}
+
+	return ActualDamage;
 }

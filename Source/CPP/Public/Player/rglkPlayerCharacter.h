@@ -22,7 +22,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Attack() override;
 	virtual void Die() override;
 
@@ -35,24 +34,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	UCameraComponent* FollowCamera;
 
-	//INPUT
-
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputMappingContext* DefaultMappingContext;
-
-	/** Move Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputAction* MoveAction;
-
-	/** Attack Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputAction* AttackAction;
-
-protected:
-	/** Called for movement input */
+	/** Actions */
 	void Move(const FInputActionValue& Value);
-
-	/** Called for attack input */
-	void InputAttack(const FInputActionValue& Value);
+	void Attack(const FInputActionValue& Value);
 };
+

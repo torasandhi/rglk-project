@@ -18,6 +18,7 @@ class CPP_API AProjectile : public AActor, public IPoolableInterface
 public:
 	AProjectile();
 	virtual void Tick(float DeltaTime) override;
+	virtual FOnReturnedToPool& OnReturnedToPool() override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -35,4 +36,5 @@ private:
 	void InitVelocity(const FVector& Dir);
 	void ReturnSelfToPool();
 	virtual void OnSpawnFromPool_Implementation() override;
+	FOnReturnedToPool ReturnToPool;
 };

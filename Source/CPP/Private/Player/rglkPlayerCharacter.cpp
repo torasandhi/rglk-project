@@ -3,10 +3,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
-#include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "ObjectPoolSubsystem.h"
-#include "CPP/CPP.h"
 
 ArglkPlayerCharacter::ArglkPlayerCharacter()
 {
@@ -36,30 +34,10 @@ ArglkPlayerCharacter::ArglkPlayerCharacter()
 void ArglkPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
-}
-
-void ArglkPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
-	{
-		// Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ArglkPlayerCharacter::Move);
-
-		// Attacking
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ArglkPlayerCharacter::InputAttack);
-	}
 }
 
 void ArglkPlayerCharacter::Move(const FInputActionValue& Value)
 {
-	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
@@ -74,20 +52,21 @@ void ArglkPlayerCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
-void ArglkPlayerCharacter::InputAttack(const FInputActionValue& Value)
+void ArglkPlayerCharacter::Attack(const FInputActionValue& Value)
 {
 	if (!WeaponComp) return;	
-
+	
 	Attack();	
 }
 
 
 void ArglkPlayerCharacter::Attack()
 {
-	PRINT_DEBUG_MESSAGE("PLAYER IS ATTACKING");
+	Super::Attack();
 }
 
 void ArglkPlayerCharacter::Die()
 {
 	Super::Die();
 }
+

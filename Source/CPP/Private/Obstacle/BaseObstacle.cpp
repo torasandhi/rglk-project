@@ -42,6 +42,11 @@ void ABaseObstacle::OnSpawnFromPool_Implementation()
 	);
 }
 
+IPoolableInterface::FOnReturnedToPool& ABaseObstacle::OnReturnedToPool()
+{
+	return ReturnToPool;
+}
+
 void ABaseObstacle::ReturnSelfToPool()
 {
 	if (UObjectPoolSubsystem* Pool = GetWorld()->GetSubsystem<UObjectPoolSubsystem>())

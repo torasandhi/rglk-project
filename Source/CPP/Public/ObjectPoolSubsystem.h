@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "CPP/Data/MyPoolConfig.h" // Include your new config header
+#include "Enemy/rglkEnemyCharacter.h"
 #include "ObjectPoolSubsystem.generated.h"
 
 UCLASS()
