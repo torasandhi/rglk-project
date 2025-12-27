@@ -11,13 +11,12 @@ class CPP_API ArglkCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-public:
-	ArglkCharacter();
-
 protected:
 	virtual void BeginPlay() override;
 
 public:
+	ArglkCharacter();
+
 	virtual void Tick(float DeltaTime) override;
 
 	// --- SHARED STATS --- //

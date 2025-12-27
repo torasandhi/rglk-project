@@ -34,6 +34,17 @@ ArglkPlayerCharacter::ArglkPlayerCharacter()
 void ArglkPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+}
+
+void ArglkPlayerCharacter::Attack()
+{
+	Super::Attack();
+}
+
+void ArglkPlayerCharacter::Die()
+{
+	Super::Die();
 }
 
 void ArglkPlayerCharacter::Move(const FInputActionValue& Value)
@@ -59,14 +70,27 @@ void ArglkPlayerCharacter::Attack(const FInputActionValue& Value)
 	Attack();	
 }
 
-
-void ArglkPlayerCharacter::Attack()
+float ArglkPlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+	class AController* EventInstigator, AActor* DamageCauser)
 {
-	Super::Attack();
+	const float ActualDamage = Super::TakeDamage(
+		DamageAmount,
+		DamageEvent,
+		EventInstigator,
+		DamageCauser);
+
+	CurrentHealth -= ActualDamage;
+
+	if (CurrentHealth <= 0)
+	{
+		Die();
+		CurrentHealth = MaxHealth;
+	}
+	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+	return ActualDamage;
 }
 
-void ArglkPlayerCharacter::Die()
+float ArglkPlayerCharacter::GetHealthPercent() const
 {
-	Super::Die();
+	return CurrentHealth / MaxHealth;
 }
-

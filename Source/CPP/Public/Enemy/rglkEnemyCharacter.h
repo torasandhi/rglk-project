@@ -12,7 +12,6 @@ enum class EEnemyState : uint8
 	Attacking UMETA(DisplayName="Attacking")
 };
 
-
 UCLASS()
 class CPP_API ArglkEnemyCharacter : public ArglkCharacter, public IPoolableInterface
 {
@@ -34,23 +33,22 @@ protected:
 	virtual void OnSpawnFromPool_Implementation() override;
 
 private:
-
 	UPROPERTY(VisibleAnywhere, Category = "AI")
 	AActor* TargetActor;
 	UPROPERTY(EditAnywhere, Category = "AI")
 	float StopDistance = 100.0f;
-	
+
 	FVector SeparationForce;
 	FTimerHandle AttackTimer;
 	FOnReturnedToPool ReturnToPool;
 
 	void FindTarget();
 	void ChaseTarget();
-bool TimerManager(const FTimerHandle MyTimerHandle) const;
+	bool TimerManager(const FTimerHandle MyTimerHandle) const;
 
 	UPROPERTY(VisibleAnywhere, Category = "AI")
 	EEnemyState CurrentState = EEnemyState::Chasing;
-	
+
 	void SetState(EEnemyState NewState);
 	void EnterState(EEnemyState State);
 	void ExitState(EEnemyState State);

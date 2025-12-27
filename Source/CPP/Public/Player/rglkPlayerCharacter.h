@@ -11,6 +11,7 @@ class UInputAction;
 class UCameraComponent;
 class USpringArmComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, CurrentHealth, float, MaxHealth);
 
 UCLASS()
 class CPP_API ArglkPlayerCharacter : public ArglkCharacter
@@ -20,10 +21,16 @@ class CPP_API ArglkPlayerCharacter : public ArglkCharacter
 public:
 	ArglkPlayerCharacter();
 
+	UPROPERTY(BlueprintAssignable)
+	FOnHealthChanged OnHealthChanged;
+	float GetHealthPercent() const;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Attack() override;
 	virtual void Die() override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+	                         class AController* EventInstigator, AActor* DamageCauser) override;;
 
 public:
 	/** Camera Boom: Positions the camera behind the character */
@@ -38,4 +45,3 @@ public:
 	void Move(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
 };
-

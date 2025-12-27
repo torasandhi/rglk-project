@@ -7,11 +7,20 @@
 #include "EnhancedInputSubsystems.h"
 #include "CPP/CPP.h"
 #include "Player/rglkPlayerCharacter.h"
+#include "UI/MainWidget.h"
 
 void ArglkPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	SetInputState(EInputState::Gameplay);
+
+	UMainWidget* UI = CreateWidget<UMainWidget>(this, UI_Main);
+	UI->AddToViewport();
+	if (UI)
+	{
+		UI->WBP_Gameplay->SetVisibility(ESlateVisibility::Visible);
+		PRINT_DEBUG_MESSAGE("VISIBILITY SET");
+	}
 }
 
 void ArglkPlayerController::SetupInputComponent()
