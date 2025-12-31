@@ -51,7 +51,7 @@ protected:
 	UInputAction* SwapUtilAction;
 
 private:
-	EInputState CurrentState = EInputState::UI;
+	EInputState CurrentState = EInputState::Gameplay;
 
 	/**OnActions*/
 	void OnAttackAction(const FInputActionValue& value);

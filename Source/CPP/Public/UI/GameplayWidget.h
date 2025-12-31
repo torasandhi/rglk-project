@@ -33,4 +33,9 @@ private:
 	void OnHealthChanged(float Current, float Max);
 	UFUNCTION()
 	void OnScoreChanged(int32 NewScore) const;
+	UFUNCTION()
+	void PollForPlayerBind();
+
+	UPROPERTY()
+	FTimerHandle FindPlayerToBindTimer;
 };

@@ -12,7 +12,7 @@
 void ArglkPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	SetInputState(EInputState::Gameplay);
+	SetInputState(EInputState::UI);
 
 	MainWidget = CreateWidget<UMainWidget>(this,UI_Main);
 	MainWidget->AddToViewport();

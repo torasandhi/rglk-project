@@ -58,6 +58,8 @@ void UMainMenuWidget::OnStartButtonClick()
 			PC->MainWidget->WBP_Gameplay
 		);
 	}
+
+	GetWorld()->GetFirstPlayerController<ArglkPlayerController>()->SetInputState(EInputState::Gameplay);
 }
 
 
