@@ -5,6 +5,7 @@
 #include "GameFramework/Controller.h"
 #include "EnhancedInputSubsystems.h"
 #include "ObjectPoolSubsystem.h"
+#include "NiagaraComponent.h"
 #include "Components/RangedWeaponComponent.h"
 #include "CPP/CPP.h"
 
@@ -19,12 +20,10 @@ ArglkPlayerCharacter::ArglkPlayerCharacter()
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-
 	CameraBoom->bUsePawnControlRotation = false;
 	CameraBoom->bInheritPitch = false;
 	CameraBoom->bInheritYaw = false;
 	CameraBoom->bInheritRoll = false;
-
 	CameraBoom->SetRelativeRotation(FRotator(-50.0f, 0.0f, 0.0f));
 	CameraBoom->TargetArmLength = 800.0f; // Distance from player
 
@@ -35,12 +34,16 @@ ArglkPlayerCharacter::ArglkPlayerCharacter()
 	AimingComponent = CreateDefaultSubobject<USceneComponent>(TEXT("AimingComponent"));
 	AimingComponent->SetupAttachment(RootComponent);
 	AimingComponent->SetUsingAbsoluteRotation(true);
-	
+
 	FirePointComponent = CreateDefaultSubobject<USceneComponent>(TEXT("FirePointComponent"));
 	FirePointComponent->SetupAttachment(AimingComponent);
 	FirePointComponent->SetRelativeLocation(FVector(67.67f, 0.0f, 0.0f));
-	
+
 	RangedComp = CreateDefaultSubobject<URangedWeaponComponent>(TEXT("RangedWeaponComponent"));
+
+	SlashEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SlashEffect"));
+	SlashEffect->SetupAttachment(FirePointComponent);
+	SlashEffect->bAutoActivate = false;
 }
 
 void ArglkPlayerCharacter::BeginPlay()
@@ -60,9 +63,11 @@ void ArglkPlayerCharacter::Attack()
 
 	case EAttackType::Melee:
 		if (!WeaponComp) return;
-		WeaponComp->PerformAttack();
+		if (SlashEffect && !SlashEffect->IsActive())
+		{
+			WeaponComp->PerformAttack();
+		}
 		break;
-
 	case EAttackType::Ranged:
 		if (!RangedComp) return;
 		RangedComp->PerformAttack();
@@ -102,7 +107,6 @@ void ArglkPlayerCharacter::Execute_AimStick(const FInputActionValue& Value)
 
 	AimingComponent->SetRelativeRotation(Rot);
 }
-
 
 void ArglkPlayerCharacter::Execute_AimAtMousePos(const FVector& WorldPos)
 {
@@ -148,7 +152,6 @@ void ArglkPlayerCharacter::Execute_Swap(const FInputActionValue& Value)
 		}
 	}
 }
-
 
 
 float ArglkPlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,

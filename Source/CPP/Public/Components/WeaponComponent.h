@@ -18,6 +18,7 @@ public:
 	virtual void PerformAttack();
 protected:
 	virtual void BeginPlay() override;
+	void TriggerSlashEffect();
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float BaseDamage = 10.f;
 	UPROPERTY(EditAnywhere, Category = "Combat")

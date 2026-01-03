@@ -1,8 +1,11 @@
 #pragma once
 
+
 #include "CoreMinimal.h"
 #include "rglkCharacter.h" // Inheriting from your Base Character
 #include "InputActionValue.h"
+#include "NiagaraFunctionLibrary.h" // Add this
+#include "NiagaraSystem.h"          // Add this
 #include "rglkPlayerCharacter.generated.h"
 
 // Forward declarations to reduce compile time
@@ -12,6 +15,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class URangedWeaponComponent;
 class USceneComponent;
+class UNiagaraComponent;
 
 UENUM(BlueprintType)
 enum class EAttackType : uint8
@@ -53,6 +57,8 @@ public:
 	URangedWeaponComponent* RangedComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USceneComponent* AimingComponent;
+	UPROPERTY(EditdefaultsOnly, BlueprintReadOnly, Category = "VFX")
+	UNiagaraComponent* SlashEffect;
 
 	void Execute_Move(const FInputActionValue& Value);
 	void Execute_Attack(const FInputActionValue& Value);

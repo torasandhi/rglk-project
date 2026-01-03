@@ -2,10 +2,13 @@
 
 
 #include "Components/WeaponComponent.h"
+
+#include "NiagaraComponent.h"
 #include "rglkCharacter.h"
 #include "CPP/CPP.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Player/rglkPlayerCharacter.h"
 
 
 UWeaponComponent::UWeaponComponent()
@@ -26,6 +29,20 @@ void UWeaponComponent::BeginPlay()
 	Super::BeginPlay();
 	BaseDamage = GetOwner<ArglkCharacter>()->BaseDamage;
 }
+
+void UWeaponComponent::TriggerSlashEffect()
+{
+	// only for player character as of now
+	if (ArglkPlayerCharacter* PCharacter = GetOwner<ArglkPlayerCharacter>())
+	{
+		if (UNiagaraComponent* SlashEffect = PCharacter->SlashEffect)
+		{
+			SlashEffect->SetCustomTimeDilation(2.f);
+			SlashEffect->Activate();
+		}
+	}
+}
+
 
 void UWeaponComponent::PerformAttack()
 {
@@ -54,9 +71,7 @@ void UWeaponComponent::PerformAttack()
 		Hit,
 		true
 	);
-
-	PRINT_DEBUG_MESSAGE("WeaponComponent IS Performing Attack()")
-
+	
 	if (bHit && Hit.GetActor())
 	{
 		UGameplayStatics::ApplyDamage(
@@ -68,4 +83,6 @@ void UWeaponComponent::PerformAttack()
 		);
 		UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *Hit.GetActor()->GetName());
 	}
+
+	TriggerSlashEffect();
 }
