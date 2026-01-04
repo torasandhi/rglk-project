@@ -1,5 +1,6 @@
 #include "Components/RangedWeaponComponent.h"
 #include "ObjectPoolSubsystem.h"
+#include "CPP/CPP.h"
 #include "Items/Projectile.h"
 #include "Player/rglkPlayerCharacter.h"
 
@@ -16,7 +17,24 @@ void URangedWeaponComponent::PerformAttack()
 	USceneComponent* FirePoint = Owner->FirePointComponent;
 
 	const FVector Start = FirePoint ? FirePoint->GetComponentLocation() : Owner->GetActorLocation();
-	FVector ForwardDir = FirePoint ? FirePoint->GetForwardVector() : Owner->GetActorForwardVector();
+	FVector ForwardDir;
+
+	if (Owner->ActorHasTag("Player"))
+	{
+		ForwardDir = FirePoint ? FirePoint->GetForwardVector() : Owner->GetActorForwardVector();
+	}
+	else
+	{
+		if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+		{
+			if (APawn* PlayerPawn = PC->GetPawn())
+			{
+				ForwardDir = (PlayerPawn->GetActorLocation() - Start).GetSafeNormal();
+			}
+		}
+		if (ForwardDir.IsZero()) ForwardDir = Owner->GetActorForwardVector();
+	}
+
 	ForwardDir.Z = 0.f;
 	ForwardDir.Normalize();
 	const FVector End = Start + ForwardDir * TraceDistance;
@@ -33,10 +51,9 @@ void URangedWeaponComponent::PerformAttack()
 		Params
 	);
 
-	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 3.0f);
+	// DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 3.0f);
 
-	const FVector Target = bHit ? Hit.ImpactPoint : End;
-	const FRotator ProjectileRot = (Target - Start).Rotation();
+	const FRotator ProjectileRot = ForwardDir.Rotation();
 
 	if (UObjectPoolSubsystem* Pool = GetWorld()->GetSubsystem<UObjectPoolSubsystem>())
 	{
@@ -44,7 +61,7 @@ void URangedWeaponComponent::PerformAttack()
 
 		if (AProjectile* SpawnedProjectile = static_cast<AProjectile*>(SpawnedActor))
 		{
-			SpawnedProjectile->Activate(ProjectileRot.Vector(), Owner);
+			SpawnedProjectile->Activate(ForwardDir, Owner);
 			SpawnedProjectile->OnReturnedToPool().AddUObject(
 				this,
 				&URangedWeaponComponent::HandleActorReturnToPool

@@ -8,6 +8,10 @@
 
 ArglkEnemyCharacter::ArglkEnemyCharacter()
 {
+	bUseControllerRotationPitch = true;
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationRoll = true;
+
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
 	RangedWeaponComp = CreateDefaultSubobject<URangedWeaponComponent>(TEXT("RangedWeaponComponent"));
 	FirePointComponent = CreateDefaultSubobject<USceneComponent>(TEXT("FirePointComponent"));
@@ -105,6 +109,7 @@ void ArglkEnemyCharacter::Die()
 {
 	if (bIsDead) return;
 	bIsDead = true;
+	AttackTimer.Invalidate();
 	if (UObjectPoolSubsystem* Pool = GetWorld()->GetSubsystem<UObjectPoolSubsystem>())
 	{
 		Pool->ReturnActorToPool(this);
@@ -208,7 +213,7 @@ void ArglkEnemyCharacter::UpdateChase(float DeltaTime)
 	else
 		FindTarget();
 
-	// basic seperation logic
+	// seperation logic
 	if (!SeparationForce.IsZero())
 	{
 		AddMovementInput(SeparationForce, 1.0f);

@@ -1,112 +1,78 @@
 #include "Items/Projectile.h"
-#include "ObjectPoolSubsystem.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
+#include "ObjectPoolSubsystem.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameFramework/Controller.h"
-#include "Engine/World.h"
 
 AProjectile::AProjectile()
 {
-	PrimaryActorTick.bCanEverTick = true;
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	PrimaryActorTick.bCanEverTick = false;
+
 	SphereCollider = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollider"));
-	SphereCollider->SetupAttachment(RootComponent);
+	RootComponent = SphereCollider;
 	SphereCollider->SetWorldScale3D(FVector(3.f, 3.f, 3.f));
+
+	// Collision setup
+	SphereCollider->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+	SphereCollider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+	ProjectileMovement->UpdatedComponent = SphereCollider;
+	ProjectileMovement->bRotationFollowsVelocity = true;
+	ProjectileMovement->bShouldBounce = false;
+	ProjectileMovement->ProjectileGravityScale = 0.f;
+	ProjectileMovement->InitialSpeed = MoveSpeed;
+	ProjectileMovement->MaxSpeed = MoveSpeed;
 }
 
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+	SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnOverlap);
 }
 
-void AProjectile::Activate(const FVector& Direction, AActor* InOwner)
+void AProjectile::Activate(const FVector& InDirection, AActor* InOwner)
 {
 	SetOwner(InOwner);
-	MoveDirection = Direction.GetSafeNormal();
-
 	SetActorHiddenInGame(false);
-	SetActorTickEnabled(true);
+	SphereCollider->ClearMoveIgnoreActors();
+	if (InOwner)
+	{
+		SphereCollider->IgnoreActorWhenMoving(InOwner, true);
+	}
+
+	if (ProjectileMovement)
+	{
+		ProjectileMovement->Velocity = InDirection * MoveSpeed;
+		ProjectileMovement->UpdateComponentVelocity();
+		ProjectileMovement->Activate();
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(LifeTimerHandle, this, &AProjectile::ReturnActorToPool, LifeTime, false);
 }
 
-void AProjectile::OnSpawnFromPool_Implementation()
+void AProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+                            UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+                            bool bFromSweep, const FHitResult& SweepResult)
 {
-	IPoolableInterface::OnSpawnFromPool_Implementation();
-	AliveTime = 0.f;
-}
+	if (!GetOwner()) return;
+	if (OtherActor->IsA(AProjectile::StaticClass())) return;
+	if (!OtherActor || OtherActor == GetOwner()) return;
+	if (OtherActor->GetOwner() == GetOwner()) return;
 
-IPoolableInterface::FOnReturnedToPool& AProjectile::OnReturnedToPool()
-{
-	return ReturnToPool;
-}
-
-void AProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	AliveTime += DeltaTime;
-	if (AliveTime >= LifeTime)
+	bool bShooterIsEnemy = GetOwner() && GetOwner()->ActorHasTag("Enemy");
+	bool bHitIsEnemy = OtherActor->ActorHasTag("Enemy");
+	if (bShooterIsEnemy && bHitIsEnemy)
 	{
 		ReturnActorToPool();
 		return;
-	}
-
-	const FVector Start = GetActorLocation();
-	const FVector End = Start + MoveDirection * Speed * DeltaTime;
-
-	FHitResult Hit;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-	Params.AddIgnoredActor(GetOwner());
-
-	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
-	{
-		Params.AddIgnoredActor(PC->GetPawn());
-	}
-
-	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
-	{
-		SetActorLocation(Hit.ImpactPoint);
-
-		if (AActor* HitActor = Hit.GetActor())
-		{
-			UGameplayStatics::ApplyDamage(
-				HitActor,
-				BaseDamage,
-				GetOwner() ? GetOwner()->GetInstigatorController() : nullptr,
-				this,
-				UDamageType::StaticClass()
-			);
-		}
-
-		ReturnActorToPool();
-		return;
-	}
-
-	SetActorLocation(End);
-}
-
-void AProjectile::DealDamage(
-	UPrimitiveComponent* OverlappedComp,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex,
-	bool bFromSweep,
-	const FHitResult& SweepResult)
-{
-	if (OtherActor == this) return;
-
-	if (OtherActor->ActorHasTag("Player")) return;
-
-	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
-	{
-		if (OtherActor == PC->GetPawn()) return;
 	}
 
 	UGameplayStatics::ApplyDamage(
 		OtherActor,
 		BaseDamage,
-		nullptr,
-		nullptr,
+		GetOwner() ? GetOwner()->GetInstigatorController() : nullptr,
+		this,
 		UDamageType::StaticClass()
 	);
 
@@ -115,11 +81,30 @@ void AProjectile::DealDamage(
 
 void AProjectile::ReturnActorToPool()
 {
+	GetWorld()->GetTimerManager().ClearTimer(LifeTimerHandle);
+
 	SetOwner(nullptr);
-	SetActorTickEnabled(false);
 	SetActorHiddenInGame(true);
+	SphereCollider->ClearMoveIgnoreActors();
+
+	if (ProjectileMovement)
+	{
+		ProjectileMovement->StopMovementImmediately();
+		ProjectileMovement->Deactivate();
+	}
+
 	if (UObjectPoolSubsystem* Pool = GetWorld()->GetSubsystem<UObjectPoolSubsystem>())
 	{
 		Pool->ReturnActorToPool(this);
 	}
+}
+
+void AProjectile::OnSpawnFromPool_Implementation()
+{
+	IPoolableInterface::OnSpawnFromPool_Implementation();
+}
+
+IPoolableInterface::FOnReturnedToPool& AProjectile::OnReturnedToPool()
+{
+	return ReturnToPool;
 }

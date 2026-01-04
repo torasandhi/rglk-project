@@ -60,12 +60,9 @@ void ArglkCharacter::Attack()
 void ArglkCharacter::Die()
 {
 	if (bIsDead) return;
-	PRINT_DEBUG_MESSAGE(GetName() + " has Died");
 }
 
-void ArglkCharacter::PlayAttackEffects()
-{
-}
+void ArglkCharacter::PlayAttackEffects() {}
 
 float ArglkCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
                                  AActor* DamageCauser)
@@ -77,19 +74,19 @@ float ArglkCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		DamageCauser);
 
 	CurrentHealth -= ActualDamage;
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			2.f,
-			FColor::Green,
-			FString::Printf(
-				TEXT("%s | CurrentHealth: %.2f"),
-				*GetName(),
-				CurrentHealth
-			)
-		);
-	}
+	// if (GEngine)
+	// {
+	// 	GEngine->AddOnScreenDebugMessage(
+	// 		-1,
+	// 		2.f,
+	// 		FColor::Green,
+	// 		FString::Printf(
+	// 			TEXT("%s | CurrentHealth: %.2f"),
+	// 			*GetName(),
+	// 			CurrentHealth
+	// 		)
+	// 	);
+	// }
 
 	if (CurrentHealth <= 0)
 	{
